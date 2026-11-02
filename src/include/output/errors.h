@@ -14,6 +14,9 @@ class error: std::exception {
 public:
     enum class code {
         atferr = 10,
+        sdlerr = 20,
+        auderr = 21,
+        plterr = 30,
     };
 
     error(const std::string& err, const code e_code)
