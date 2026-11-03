@@ -8,7 +8,7 @@ using namespace std::filesystem;
 
 
 playlist::playlist() {
-    path catalog_path{absolute(chil_playlists_catalog_name)};
+    path catalog_path{get_home_dir() / chil_playlists_catalog_name};
 
     if(!exists(catalog_path)) 
         create_directory(catalog_path);
@@ -36,20 +36,18 @@ playlist::~playlist() {
 
 
 void playlist::load(const std::string& name) {
-    path catalog_path{absolute(chil_playlists_catalog_name)};
-    catalog_path += name;
+    path catalog_path{get_home_dir() / chil_playlists_catalog_name / name};
 
     if(!exists(catalog_path)) 
         throw error("Playlist do not exist", error::code::plterr);  
-
-    auto end{catalog_path.end()};
     
-    for(auto it{catalog_path.begin()}; it != end; ++it) {
-        auto title{it->c_str()};
-        auto song_path{catalog_path};
-        song_path += title;
+    for(const auto entry: directory_iterator(catalog_path)) {
+        if(is_regular_file(entry)) {
+            path song_path{catalog_path /  entry};
+            auto title{entry.path().filename().string()};
 
-        list.emplace_back(music::parse(title), song_path, std::make_unique<SDL_AudioDeviceID>(device));
+            list.emplace_back(music::parse(title), song_path, std::make_unique<SDL_AudioDeviceID>(device));
+        }
     }
 }
 
@@ -62,8 +60,7 @@ void playlist::remove(const std::string& name) {
 }
 
 void playlist::make(const std::string& name) {
-    path catalog_path{absolute(chil_playlists_catalog_name)};
-    catalog_path += name;
+    path catalog_path{get_home_dir() / chil_playlists_catalog_name / name};
 
     if(!exists(catalog_path))
         create_directory(catalog_path);
@@ -72,4 +69,25 @@ void playlist::make(const std::string& name) {
 void playlist::play(const play_settings settings) {
     for(auto& song: list)
         song.play();
+}
+
+path playlist::get_home_dir(void) {
+#if defined(_WIN32)
+    const char* user_profile{std::getenv("USERPROFILE")};
+    if(user_profile) {
+        return fs::path(user_profile);
+    }
+    const char* home_drive{std::getenv("HOMEDRIVE")};
+    const char* home_path{std::getenv("HOMEPATH")};
+    if(home_drive && home_path) {
+        return path(home_drive) / home_path;
+    }
+#else
+    const char* home{std::getenv("HOME")};
+    if(home) {
+        return path(home);
+    }
+#endif
+
+    return path();
 }

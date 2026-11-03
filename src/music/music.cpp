@@ -21,9 +21,6 @@ music::~music() {
 }
 
 void music::play(void) {
-    if(SDL_Init(SDL_INIT_AUDIO) < 0)
-        throw error(std::format("SDL init failet: {}", SDL_GetError()), error::code::sdlerr);
-
     read();
 
     SDL_QueueAudio(*device, buffer.data(), buffer.size());
@@ -38,18 +35,23 @@ void music::play(void) {
 
 music_info music::parse(const std::string& str) {
     std::istringstream iss{str};
+    std::vector<std::string> results{
+        std::istream_iterator<std::string>{iss},
+        std::istream_iterator<std::string>{}
+    };
 
-    std::vector<std::string> results{std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>{}};
+    if(results.size() < 3) {
+        throw std::runtime_error("Invalid music format: " + str);
+    }
 
     std::chrono::seconds secs{std::stoll(results.at(2))};
-
-    return {results.at(0), results.at(1), secs};
+    return {.name = results.at(0), .author = results.at(1), .duration = secs};
 }
 
 void music::read(void) {
     auto song{song_path.c_str()};
 
-    std::string command{"ffmpeg -i \"" + std::string(info.name) + "\" -f s16le -acodec pcm_s16le -ar 44100 -ac 2 -loglevel quiet -"};
+    std::string command{"ffmpeg -i \"" + std::string(song) + "\" -f s16le -acodec pcm_s16le -ar 44100 -ac 2 -loglevel quiet -"};
 
     FILE* pipe{popen(command.c_str(), "r")};
     if(!pipe) {
