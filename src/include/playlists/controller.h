@@ -28,8 +28,11 @@ class playlist {
     std::atomic<bool> playing;
 
 public:
+    playlist() = default;
     playlist(std::unique_ptr<class player> player);
     ~playlist(void);
+
+    playlist& operator=(playlist&&);
 
     void load(const std::string& name);
     void make(const std::string& name);
@@ -37,6 +40,8 @@ public:
     void remove(const std::string& name);
     void play(const play_settings settings);
     void stop(void);
+    void pause(void);
+    std::vector<std::string> get_playlists(void);
 
 private:
     path get_home_dir(void);

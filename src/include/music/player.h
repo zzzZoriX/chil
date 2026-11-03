@@ -25,8 +25,11 @@ class player {
 
 public:
     player(player&) noexcept;
+    player() = default;
     player(std::unique_ptr<SDL_AudioDeviceID> device);
     ~player(void);
+
+    player& operator=(player&&);
 
     void play(void);
     void pause(void);

@@ -23,9 +23,27 @@ playlist::~playlist(void) {
     stop();
 }
 
+playlist& playlist::operator=(playlist&& other) {
+    if(this != &other) {
+        this->player = std::move(other.player);
+        this->list = std::move(other.list);
+        this->name = other.name;
+        this->playing = other.playing.exchange(false);
+        this->t = std::move(other.t);
+        this->thread_error = other.thread_error;
+
+        other.name.clear();
+        other.name.shrink_to_fit();
+        other.thread_error = error();
+    }
+
+    return *this;
+}
+
 
 void playlist::load(const std::string& name) {
     path catalog_path{get_home_dir() / chil_playlists_catalog_name / name};
+    this->name = name;
 
     if(!exists(catalog_path)) 
         throw error("Playlist do not exist", error::code::plterr);  
@@ -58,6 +76,14 @@ void playlist::make(const std::string& name) {
 void playlist::play(const play_settings settings) {
     playing.store(true);
     t = std::thread(&playlist::playlist_thread, this);
+}
+
+void playlist::pause(void) {
+    {
+        std::lock_guard lock{mutex};
+
+        player->pause();
+    }
 }
 
 void playlist::stop(void) {
@@ -134,4 +160,16 @@ void playlist::playlist_thread(void) {
 
         ++song;
     }
+}
+
+std::vector<std::string> playlist::get_playlists(void) {
+    std::vector<std::string> playlists;
+
+    auto catalog_path{get_home_dir() / chil_playlists_catalog_name};
+
+    for(const auto entry: directory_iterator(catalog_path))
+        if(entry.is_directory())
+            playlists.push_back(entry.path().filename().string());
+
+    return playlists;
 }

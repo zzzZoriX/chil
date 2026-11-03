@@ -13,6 +13,14 @@ player::player(player& other) noexcept {
 
     this->pause_status = other.pause_status;
     this->running = other.running.exchange(false);
+
+    this->t = std::move(other.t);
+    this->thread_error = other.thread_error;
+    this->song_name = other.song_name;
+
+    other.thread_error = error();
+    other.song_name.clear();
+    other.song_name.shrink_to_fit();
 }
 
 player::player(std::unique_ptr<SDL_AudioDeviceID> device)
@@ -23,6 +31,27 @@ player::player(std::unique_ptr<SDL_AudioDeviceID> device)
 player::~player(void) {
     if(t.joinable())
         t.join();
+}
+
+player& player::operator=(player&& other) {
+    if(this != &other) {
+        this->buffer = other.buffer;
+        this->device = std::move(other.device);
+        this->pause_status = other.pause_status;
+        this->running = other.running.exchange(false);
+        this->t = std::move(other.t);
+        this->thread_error = other.thread_error;
+        this->song_name = other.song_name;
+
+        other.buffer.clear();
+        other.buffer.shrink_to_fit();
+        other.pause_status = 1;
+        other.thread_error = error();
+        other.song_name.clear();
+        other.song_name.shrink_to_fit();
+    }
+
+    return *this;
 }
 
 
