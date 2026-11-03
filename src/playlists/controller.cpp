@@ -3,16 +3,12 @@
 #include <filesystem>
 #include <memory>
 #include "../include/output/errors.h"
+#include "../include/checker/chil-file-checker.h"
 
 using namespace std::filesystem;
 
 
 playlist::playlist(std::unique_ptr<class player> player) {
-    path catalog_path{get_home_dir() / chil_playlists_catalog_name};
-
-    if(!exists(catalog_path)) 
-        create_directory(catalog_path);
-
     this->player = std::move(player);
 }
 
@@ -42,7 +38,7 @@ playlist& playlist::operator=(playlist&& other) {
 
 
 void playlist::load(const std::string& name) {
-    path catalog_path{get_home_dir() / chil_playlists_catalog_name / name};
+    path catalog_path{get_home_path() / chil_playlists_catalog_name / name};
     this->name = name;
 
     if(!exists(catalog_path)) 
@@ -67,7 +63,7 @@ void playlist::remove(const std::string& name) {
 }
 
 void playlist::make(const std::string& name) {
-    path catalog_path{get_home_dir() / chil_playlists_catalog_name / name};
+    path catalog_path{get_home_path() / chil_playlists_catalog_name / name};
 
     if(!exists(catalog_path))
         create_directory(catalog_path);
@@ -107,27 +103,6 @@ void playlist::stop(void) {
 
     if(std::string(thread_error.what()) != "noerr") 
         throw thread_error;
-}
-
-path playlist::get_home_dir(void) {
-#if defined(_WIN32)
-    const char* user_profile{std::getenv("USERPROFILE")};
-    if(user_profile) {
-        return fs::path(user_profile);
-    }
-    const char* home_drive{std::getenv("HOMEDRIVE")};
-    const char* home_path{std::getenv("HOMEPATH")};
-    if(home_drive && home_path) {
-        return path(home_drive) / home_path;
-    }
-#else
-    const char* home{std::getenv("HOME")};
-    if(home) {
-        return path(home);
-    }
-#endif
-
-    return path();
 }
 
 void playlist::playlist_thread(void) {
@@ -184,7 +159,7 @@ void playlist::playlist_thread(void) {
 std::vector<std::string> playlist::get_playlists(void) {
     std::vector<std::string> playlists;
 
-    auto catalog_path{get_home_dir() / chil_playlists_catalog_name};
+    auto catalog_path{get_home_path() / chil_playlists_catalog_name};
 
     for(const auto entry: directory_iterator(catalog_path))
         if(entry.is_directory())

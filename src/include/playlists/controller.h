@@ -17,7 +17,6 @@ using namespace std::filesystem;
 
 
 class playlist {
-    std::string name;
     std::vector<music> list;
 
     std::unique_ptr<class player> player;
@@ -28,6 +27,8 @@ class playlist {
     std::atomic<bool> playing;
 
 public:
+    std::string name;
+
     playlist() = default;
     playlist(std::unique_ptr<class player> player);
     ~playlist(void);
@@ -41,9 +42,8 @@ public:
     void play(const play_settings settings);
     void stop(void);
     void pause(void);
-    std::vector<std::string> get_playlists(void);
+    static std::vector<std::string> get_playlists(void);
 
 private:
-    path get_home_dir(void);
     void playlist_thread(void);
 };
