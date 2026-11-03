@@ -12,28 +12,7 @@ playlist::playlist() {
 
     if(!exists(catalog_path)) 
         create_directory(catalog_path);
-
-
-    SDL_AudioSpec spec;
-    SDL_zero(spec);
-
-    spec.freq = 44100;
-    spec.format = AUDIO_S16SYS;
-    spec.channels = 2;
-    spec.callback = NULL;
-    spec.samples = 4096;
-
-    device = SDL_OpenAudioDevice(nullptr, 0, &spec, nullptr, 0);
-    if(device == 0) {
-        SDL_Quit();
-        throw error(std::format("Failed to open audio device: {}", SDL_GetError()), error::code::auderr);
-    }
 }
-
-playlist::~playlist() {
-    SDL_CloseAudioDevice(device);
-}
-
 
 void playlist::load(const std::string& name) {
     path catalog_path{get_home_dir() / chil_playlists_catalog_name / name};
@@ -46,7 +25,7 @@ void playlist::load(const std::string& name) {
             path song_path{catalog_path /  entry};
             auto title{entry.path().filename().string()};
 
-            list.emplace_back(music::parse(title), song_path, std::make_unique<SDL_AudioDeviceID>(device));
+            list.emplace_back(music::parse(title), song_path);
         }
     }
 }
@@ -67,8 +46,10 @@ void playlist::make(const std::string& name) {
 }
 
 void playlist::play(const play_settings settings) {
-    for(auto& song: list)
-        song.play();
+    for(auto& song: list) {
+        player->load(song.song_path.c_str());
+        player->play();
+    }
 }
 
 path playlist::get_home_dir(void) {

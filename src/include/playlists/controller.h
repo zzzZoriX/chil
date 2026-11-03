@@ -3,6 +3,7 @@
 #include <string>
 #include "settings.h"
 #include "../music/music.h"
+#include "../music/player.h"
 #include <vector>
 #include <SDL2/SDL.h>
 #include <filesystem>
@@ -16,11 +17,10 @@ class playlist {
     std::string name;
     std::vector<music> list;
 
-    SDL_AudioDeviceID device;
+    std::unique_ptr<player> player;
 
 public:
     playlist();
-    ~playlist();
 
     void load(const std::string& name);
     void make(const std::string& name);
