@@ -16,6 +16,14 @@ playlist::playlist(std::unique_ptr<class player> player) {
     this->player = std::move(player);
 }
 
+playlist::~playlist(void) {
+    if(t.joinable())
+        t.join();
+
+    stop();
+}
+
+
 void playlist::load(const std::string& name) {
     path catalog_path{get_home_dir() / chil_playlists_catalog_name / name};
 
@@ -48,14 +56,21 @@ void playlist::make(const std::string& name) {
 }
 
 void playlist::play(const play_settings settings) {
-    for(auto& song: list) {
-        player->load(song.song_path.c_str());
-        player->play();
-    }
+    playing.store(true);
+    t = std::thread(&playlist::playlist_thread, this);
 }
 
 void playlist::stop(void) {
-    player->stop();   
+    playing.store(false);   
+
+    {
+        std::lock_guard lock{mutex};
+    
+        player->stop();   
+
+        if(std::string(thread_error.what()) != "noerr") 
+            throw thread_error;
+    }
 }
 
 path playlist::get_home_dir(void) {
@@ -77,4 +92,46 @@ path playlist::get_home_dir(void) {
 #endif
 
     return path();
+}
+
+void playlist::playlist_thread(void) {
+    std::vector<music>::iterator song;
+
+    {
+        std::lock_guard lock{mutex};
+    
+        song = list.begin();
+    }
+
+    while(song != list.end() && playing.load()) {
+        {
+            std::lock_guard lock{mutex};
+        
+            player->load(song->song_path.c_str(), song->info.name);
+            player->play();
+        }
+
+        while(true) {
+            bool is_alive;
+
+            {
+                std::lock_guard lock{mutex};
+
+                is_alive = player->alive();
+            }
+
+            if(!is_alive) break;
+        }
+
+        {
+            std::lock_guard lock{mutex};
+
+            if(auto err {player->get_error()}; err.has_value()) {
+                thread_error = error(err->what(), error::code::auderr);
+                return;
+            }       
+        }
+
+        ++song;
+    }
 }

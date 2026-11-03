@@ -13,6 +13,7 @@ struct music {
     path song_path;
 
     music(music&&) noexcept = default;
+    music(music&) noexcept = default;
     music(music_info info, path song_path);
 
     static music_info parse(const std::string& str);

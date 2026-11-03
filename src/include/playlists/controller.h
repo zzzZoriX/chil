@@ -7,6 +7,9 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include <filesystem>
+#include <mutex>
+#include <thread>
+#include <atomic>
 
 #define chil_playlists_catalog_name "cplc"
 
@@ -19,8 +22,14 @@ class playlist {
 
     std::unique_ptr<class player> player;
 
+    std::thread t;
+    error thread_error;
+    std::mutex mutex;
+    std::atomic<bool> playing;
+
 public:
     playlist(std::unique_ptr<class player> player);
+    ~playlist(void);
 
     void load(const std::string& name);
     void make(const std::string& name);
@@ -31,4 +40,5 @@ public:
 
 private:
     path get_home_dir(void);
+    void playlist_thread(void);
 };

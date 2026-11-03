@@ -36,9 +36,6 @@ int main(int argc, char** argv) {
         pl.load("govno");
 
         pl.play(play_settings());
-
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-        pl.stop();
     }
     catch (const error& e) {
         error::panic(e);

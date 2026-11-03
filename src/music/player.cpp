@@ -17,7 +17,7 @@ player::player(player& other) noexcept {
 
 player::player(std::unique_ptr<SDL_AudioDeviceID> device)
 :   device(std::move(device))
-,   pause_status(1)
+,   pause_status(0)
 ,   running(true) {}
 
 player::~player(void) {
@@ -26,7 +26,9 @@ player::~player(void) {
 }
 
 
-void player::load(const std::string& song) {
+void player::load(const std::string& song, const std::string& song_name) {
+    this->song_name = song_name;
+
     if(!buffer.empty()) {
         buffer.clear();
         buffer.shrink_to_fit();
@@ -77,9 +79,8 @@ void player::player_thread(void) {
         }
 
         SDL_QueueAudio(*device, buffer.data(), buffer.size());
+        SDL_PauseAudioDevice(*device, pause_status);   
     }
-
-    pause();
 
     while(true) {
         std::size_t size{0};
@@ -95,4 +96,21 @@ void player::player_thread(void) {
 
         SDL_Delay(100);
     }
+
+    running.store(false);
+}
+
+std::string player::currently_playing(void) const {
+    return song_name;
+}
+
+bool player::alive(void) const {
+    return running.load();
+}
+
+std::optional<error> player::get_error(void) const {
+    if(std::string(thread_error.what()) != "noerr")
+     return thread_error;   
+
+    return std::nullopt;
 }
