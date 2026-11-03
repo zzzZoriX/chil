@@ -19,7 +19,8 @@ public:
         plterr = 30,
     };
 
-    error() = default;
+    error()
+    :   message("noerr") {}
     error(const std::string& err, const code e_code)
     :   message(std::format("eno-{} > {}", static_cast<int>(e_code), err)) {}
 
