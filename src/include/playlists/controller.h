@@ -27,6 +27,7 @@ public:
     void add(const std::string& name);
     void remove(const std::string& name);
     void play(const play_settings settings);
+    void stop(void);
 
 private:
     path get_home_dir(void);

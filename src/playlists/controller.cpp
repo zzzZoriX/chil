@@ -54,6 +54,10 @@ void playlist::play(const play_settings settings) {
     }
 }
 
+void playlist::stop(void) {
+    player->stop();   
+}
+
 path playlist::get_home_dir(void) {
 #if defined(_WIN32)
     const char* user_profile{std::getenv("USERPROFILE")};

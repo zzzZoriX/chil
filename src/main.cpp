@@ -6,6 +6,8 @@
 
 
 int main(int argc, char** argv) {
+    SDL_AudioDeviceID device; 
+
     try {
         if(argc < 2)
             throw error("Too few arguments. Example of correct usage:\n> chil info", error::code::atferr);      
@@ -23,7 +25,7 @@ int main(int argc, char** argv) {
         spec.callback = nullptr;
         spec.samples = 4096;
 
-        SDL_AudioDeviceID device{SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0)};
+        device = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
         if(device == 0)
             throw error("Can't open audio device", error::code::auderr);
 
@@ -34,6 +36,9 @@ int main(int argc, char** argv) {
         pl.load("govno");
 
         pl.play(play_settings());
+
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        pl.stop();
     }
     catch (const error& e) {
         error::panic(e);
@@ -42,6 +47,9 @@ int main(int argc, char** argv) {
 
         return 1;
     }
+
+    SDL_CloseAudioDevice(device);
+    SDL_Quit();
 
     return 0;
 }

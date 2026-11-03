@@ -1,5 +1,7 @@
 #include "../include/music/player.h"
 #include "../include/output/errors.h"
+#include <mutex>
+#include <thread>
 
 
 player::player(player& other) noexcept {
@@ -10,14 +12,17 @@ player::player(player& other) noexcept {
     other.buffer.shrink_to_fit();
 
     this->pause_status = other.pause_status;
+    this->running = other.running.exchange(false);
 }
 
 player::player(std::unique_ptr<SDL_AudioDeviceID> device)
 :   device(std::move(device))
-,   pause_status(1) {}
+,   pause_status(1)
+,   running(true) {}
 
 player::~player(void) {
-    SDL_CloseAudioDevice(*device);
+    if(t.joinable())
+        t.join();
 }
 
 
@@ -45,20 +50,49 @@ void player::load(const std::string& song) {
 }
 
 void player::pause(void) {
+    std::lock_guard lock{mutex};
+
     pause_status = !pause_status;
 
     SDL_PauseAudioDevice(*device, pause_status);   
 }
 
 void player::play(void) {
-    if(buffer.empty()) {
-        SDL_Quit();
-        throw error("No audio for decoding", error::code::auderr);
+    running.store(true);
+    t = (std::thread(&player::player_thread, this));
+}
+
+void player::stop(void) {
+    running.store(false);
+}
+
+void player::player_thread(void) {
+    {
+        std::lock_guard lock{mutex};
+
+        if(buffer.empty()) {
+            SDL_Quit();
+            thread_error = error("No audio for decoding", error::code::auderr);
+            return;
+        }
+
+        SDL_QueueAudio(*device, buffer.data(), buffer.size());
     }
 
-    SDL_QueueAudio(*device, buffer.data(), buffer.size());
     pause();
 
-    while(SDL_GetQueuedAudioSize(*device) > 0)
+    while(true) {
+        std::size_t size{0};
+
+        {
+            std::lock_guard lock{mutex};
+
+            size = SDL_GetQueuedAudioSize(*device);
+        }
+
+        if(size == 0 || !running.load())
+            break;
+
         SDL_Delay(100);
+    }
 }
