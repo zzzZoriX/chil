@@ -61,6 +61,10 @@ void player::pause(void) {
 
 void player::play(void) {
     running.store(true);
+
+    if(t.joinable())
+        t.join();
+
     t = (std::thread(&player::player_thread, this));
 }
 
