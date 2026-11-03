@@ -13,7 +13,7 @@ class error: std::exception {
 
 public:
     enum class code {
-        atferr = 10,
+        argerr = 10,
         sdlerr = 20,
         auderr = 21,
         plterr = 30,
