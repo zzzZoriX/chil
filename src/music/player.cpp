@@ -89,16 +89,27 @@ void player::pause(void) {
 }
 
 void player::play(void) {
-    running.store(true);
+    if(running.load())
+        stop();
 
-    if(t.joinable())
-        t.join();
+    running.store(true);
+    pause_status = 0;
 
     t = (std::thread(&player::player_thread, this));
 }
 
 void player::stop(void) {
     running.store(false);
+
+    {
+        std::lock_guard lock{mutex};
+
+        SDL_PauseAudioDevice(*device, 1);
+        SDL_ClearQueuedAudio(*device);
+    }
+
+    if(t.joinable())
+        t.join();
 }
 
 void player::player_thread(void) {

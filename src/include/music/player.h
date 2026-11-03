@@ -24,6 +24,8 @@ class player {
     std::string song_name;
 
 public:
+    friend class playlist;
+
     player(player&) noexcept;
     player() = default;
     player(std::unique_ptr<SDL_AudioDeviceID> device);

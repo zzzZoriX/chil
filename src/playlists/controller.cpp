@@ -74,16 +74,21 @@ void playlist::make(const std::string& name) {
 }
 
 void playlist::play(const play_settings settings) {
+    if(playing.load())
+        return;
+
+    if(t.joinable())
+        t.join();
+
     playing.store(true);
     t = std::thread(&playlist::playlist_thread, this);
 }
 
 void playlist::pause(void) {
-    {
-        std::lock_guard lock{mutex};
+    std::lock_guard lock{mutex};
 
+    if(player)
         player->pause();
-    }
 }
 
 void playlist::stop(void) {
@@ -92,11 +97,16 @@ void playlist::stop(void) {
     {
         std::lock_guard lock{mutex};
     
-        player->stop();   
-
-        if(std::string(thread_error.what()) != "noerr") 
-            throw thread_error;
+        if(player)
+            player->stop();   
     }
+
+    if(t.joinable())
+        t.join();
+
+
+    if(std::string(thread_error.what()) != "noerr") 
+        throw thread_error;
 }
 
 path playlist::get_home_dir(void) {
@@ -132,13 +142,14 @@ void playlist::playlist_thread(void) {
     while(song != list.end() && playing.load()) {
         {
             std::lock_guard lock{mutex};
+            if(!playing.load()) break;
         
             player->load(song->song_path.c_str(), song->info.name);
             player->play();
         }
 
-        while(true) {
-            bool is_alive;
+        while(playing.load()) {
+            bool is_alive{false};
 
             {
                 std::lock_guard lock{mutex};
@@ -147,6 +158,8 @@ void playlist::playlist_thread(void) {
             }
 
             if(!is_alive) break;
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
 
         {
@@ -154,12 +167,18 @@ void playlist::playlist_thread(void) {
 
             if(auto err {player->get_error()}; err.has_value()) {
                 thread_error = error(err->what(), error::code::auderr);
+                playing.store(false);
                 return;
             }       
         }
 
-        ++song;
+        if(playing.load()) {
+            std::lock_guard lock{mutex};
+            ++song;
+        }
     }
+
+    playing.store(false);
 }
 
 std::vector<std::string> playlist::get_playlists(void) {
