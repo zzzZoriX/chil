@@ -7,11 +7,13 @@
 using namespace std::filesystem;
 
 
-playlist::playlist() {
+playlist::playlist(std::unique_ptr<class player> player) {
     path catalog_path{get_home_dir() / chil_playlists_catalog_name};
 
     if(!exists(catalog_path)) 
         create_directory(catalog_path);
+
+    this->player = std::move(player);
 }
 
 void playlist::load(const std::string& name) {

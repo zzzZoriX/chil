@@ -28,6 +28,5 @@ public:
 
     static void panic(const error& e) {
         std::cout << red_b_fg << e.what() << reset_fg << std::endl;
-        std::exit(1);
     }
 };

@@ -2,6 +2,16 @@
 #include "../include/output/errors.h"
 
 
+player::player(player& other) noexcept {
+    this->device = std::move(other.device);
+
+    this->buffer = std::move(other.buffer);
+    other.buffer.clear();
+    other.buffer.shrink_to_fit();
+
+    this->pause_status = other.pause_status;
+}
+
 player::player(std::unique_ptr<SDL_AudioDeviceID> device)
 :   device(std::move(device))
 ,   pause_status(1) {}

@@ -12,6 +12,7 @@ class player {
     int pause_status;
 
 public:
+    player(player&) noexcept;
     player(std::unique_ptr<SDL_AudioDeviceID> device);
     ~player(void);
 

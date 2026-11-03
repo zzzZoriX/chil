@@ -17,10 +17,10 @@ class playlist {
     std::string name;
     std::vector<music> list;
 
-    std::unique_ptr<player> player;
+    std::unique_ptr<class player> player;
 
 public:
-    playlist();
+    playlist(std::unique_ptr<class player> player);
 
     void load(const std::string& name);
     void make(const std::string& name);
