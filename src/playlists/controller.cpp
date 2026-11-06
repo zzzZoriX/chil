@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <memory>
 #include "../include/output/errors.h"
-#include "../include/checker/chil-file-checker.h"
+#include "../include/files/chil-files.h"
 
 using namespace std::filesystem;
 
@@ -38,7 +38,7 @@ playlist& playlist::operator=(playlist&& other) {
 
 
 void playlist::load(const std::string& name) {
-    path catalog_path{get_home_path() / chil_playlists_catalog_name / name};
+    path catalog_path{get_home_path() / playlists_dir_name / name};
     this->name = name;
 
     if(!exists(catalog_path)) 
@@ -55,15 +55,39 @@ void playlist::load(const std::string& name) {
 }
 
 void playlist::add(const std::string& name) {
-    //todo
+    const auto source{get_in_dir(true, get_home_path() / songs_to_add_dir_name, name)};
+
+    if(!source.has_value())
+        throw error("Song is unavailable now.", error::code::argerr);
+
+    const auto dest{get_home_path() / playlists_dir_name / this->name / source->filename().string()};
+
+    try {
+        std::filesystem::rename(source.value(), dest);
+    }
+    catch (const filesystem_error& e) {
+        throw error(e.what(), error::code::auderr);
+    }
 }
 
 void playlist::remove(const std::string& name) {
-    //todo
+    const auto song{get_in_dir(true, get_home_path() / playlists_dir_name / this->name, name)};
+
+    if(!song.has_value())
+        throw error("Song is unavailable now.", error::code::argerr);
+
+    const auto dest{get_home_path() / songs_to_add_dir_name / song->filename().string()};
+
+    try {
+        rename(song.value(), dest);
+    }
+    catch (const filesystem_error& e) {
+        throw error(e.what(), error::code::auderr);
+    }
 }
 
 void playlist::make(const std::string& name) {
-    path catalog_path{get_home_path() / chil_playlists_catalog_name / name};
+    path catalog_path{get_home_path() / playlists_dir_name / name};
 
     if(!exists(catalog_path))
         create_directory(catalog_path);
@@ -159,7 +183,7 @@ void playlist::playlist_thread(void) {
 std::vector<std::string> playlist::get_playlists(void) {
     std::vector<std::string> playlists;
 
-    auto catalog_path{get_home_path() / chil_playlists_catalog_name};
+    auto catalog_path{get_home_path() / playlists_dir_name};
 
     for(const auto entry: directory_iterator(catalog_path))
         if(entry.is_directory())

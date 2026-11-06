@@ -4,6 +4,7 @@
 #include "../../include/output/nice.h"
 #include "../../include/output/warn.h"
 #include "../../include/output/errors.h"
+#include "../../include/files/chil-files.h"
 
 
 input_core::input_core(std::unique_ptr<music_core> m_core)
@@ -41,6 +42,11 @@ void input_core::input_thread(void) {
                         int selected;
                         auto playlists{playlist::get_playlists()};
 
+                        if(playlists.empty()) {
+                            std::cout << "No playlist in folder to play...\n" << std::endl;
+                            break;
+                        }
+
                         std::cout << "select playlist:" << std::endl;
                         for(int i{0}; i < playlists.size(); ++i)
                             std::cout << std::format("{}: {}", i, playlists.at(i)) << std::endl;
@@ -76,11 +82,67 @@ void input_core::input_thread(void) {
                 break;
 
             case 5: // add 
-                m_core->playlist_->add("");
+                try {
+                    int selected;
+                    const auto songs{get_files(get_home_path() / songs_to_add_dir_name)};
+
+                    if(songs.empty()) {
+                        std::cout << "No songs in folder to add...\n" << std::endl;
+                        break;
+                    }
+
+                    std::cout << std::format("Select the song which will be added to {}:", m_core->playlist_->name) << std::endl;
+                    for(int i{0}; i < songs.size(); ++i)
+                        std::cout << std::format("{}: {}", i, songs.at(i)) << std::endl;
+
+                    std::cout << prompt;
+                    std::cin >> selected;
+
+                    if(selected < 0 || selected >> songs.size())
+                       throw error("Index out of range\n", error::code::argerr);
+
+                    m_core->playlist_->add(songs.at(selected)); 
+                    chil::nice(std::format("{} successfully added to {}\n", songs.at(selected), m_core->playlist_->name));
+                }
+                catch (const error& e) {
+                    error::panic(std::move(e));
+                }
+                catch (const std::exception& e) {
+                    error::panic(error(e.what(), error::code::auderr));
+                    return;
+                }
                 break;
 
             case 6: // remove
-                m_core->playlist_->remove("");
+                try {
+                    int selected;
+                    const auto songs{get_files(get_home_path() / playlists_dir_name / m_core->playlist_->name)};
+
+                    if(songs.empty()) {
+                        std::cout << std::format("No songs in {}...\n", m_core->playlist_->name) << std::endl;
+                        break;
+                    }
+
+                    std::cout << "Select the song which will be moved to 'to add' folder:" << std::endl;
+                    for(int i{0}; i < songs.size(); ++i)
+                        std::cout << std::format("{}: {}", i, songs.at(i)) << std::endl;
+
+                    std::cout << prompt;
+                    std::cin >> selected;
+
+                    if(selected < 0 || selected >> songs.size())
+                       throw error("Index out of range\n", error::code::argerr);
+
+                    m_core->playlist_->remove(songs.at(selected)); 
+                    chil::nice(std::format("{} successfully moved\n", songs.at(selected)));
+                }
+                catch (const error& e) {
+                    error::panic(std::move(e));
+                }
+                catch (const std::exception& e) {
+                    error::panic(error(e.what(), error::code::auderr));
+                    return;
+                }
                 break;
 
             case 7: // info

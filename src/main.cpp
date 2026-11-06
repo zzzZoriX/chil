@@ -2,7 +2,7 @@
 #include "include/output/nice.h"
 #include "include/cores/music/core.h"
 #include "include/cores/input/core.h"
-#include "include/checker/chil-file-checker.h"
+#include "include/files/chil-files.h"
 #include <SDL2/SDL.h>
 #include <SDL_audio.h>
 
