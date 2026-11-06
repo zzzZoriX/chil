@@ -4,6 +4,7 @@
 #include <memory>
 #include "../include/output/errors.h"
 #include "../include/files/chil-files.h"
+#include "../include/files/parser.h"
 
 using namespace std::filesystem;
 
@@ -60,7 +61,9 @@ void playlist::add(const std::string& name) {
     if(!source.has_value())
         throw error("Song is unavailable now.", error::code::argerr);
 
-    const auto dest{get_home_path() / playlists_dir_name / this->name / source->filename().string()};
+    music song{parse(source.value())};
+
+    const auto dest{get_home_path() / playlists_dir_name / this->name / (convert_to_name(song.info) + source->extension().string())};
 
     try {
         std::filesystem::rename(source.value(), dest);
