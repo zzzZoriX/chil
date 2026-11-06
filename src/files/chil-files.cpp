@@ -1,4 +1,4 @@
-#include "../include/checker/chil-file-checker.h"
+#include "../include/files/chil-files.h"
 #include <filesystem>
 #include <string>
 #include <iostream>
@@ -54,4 +54,43 @@ void check(void) {
 
     if(warns_count == 0)
         chil::nice(chil("All directories pass the check successfully\n"));
+}
+
+std::optional<std::filesystem::path> get_in_dir(const bool file, const std::filesystem::path& path, const std::string& name) {
+    for(const auto& entry:directory_iterator(path))
+       if(
+               (file ? is_regular_file(entry) : is_directory(name))
+               && entry.path().filename().string() == name
+         )
+          return entry.path(); 
+
+    return std::nullopt;
+}
+
+std::vector<std::string> get_dirs(const std::filesystem::path& path) {
+    if(!is_directory(path) || !exists(path)) 
+        return {};
+
+    std::vector<std::string> dirs_names;
+
+    for(const auto& entry: directory_iterator(path)) {
+        if(is_directory(entry))
+            dirs_names.push_back(entry.path().filename().string());
+    }
+
+    return dirs_names;
+}
+
+std::vector<std::string> get_files(const std::filesystem::path& path) {
+    if(!is_directory(path) || !exists(path))
+        return {};
+
+    std::vector<std::string> files_names;
+
+    for(const auto& entry: directory_iterator(path)) {
+        if(is_regular_file(entry))
+            files_names.push_back(entry.path().filename().string());
+    }
+
+    return files_names;
 }
