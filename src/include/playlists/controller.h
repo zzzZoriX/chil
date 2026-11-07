@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include "settings.h"
 #include "../music/music.h"
@@ -18,7 +19,7 @@ using namespace std::filesystem;
 class playlist {
     std::vector<music> list;
 
-    std::unique_ptr<class player> player;
+    std::shared_ptr<class player> player;
 
     std::thread t;
     error thread_error;
@@ -29,7 +30,7 @@ public:
     std::string name;
 
     playlist() = default;
-    playlist(std::unique_ptr<class player> player);
+    playlist(std::shared_ptr<class player> player);
     ~playlist(void);
 
     playlist& operator=(playlist&&);

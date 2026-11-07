@@ -8,7 +8,7 @@
 using namespace std::filesystem;
 
 
-playlist::playlist(std::unique_ptr<class player> player) {
+playlist::playlist(std::shared_ptr<class player> player) {
     this->player = std::move(player);
 }
 

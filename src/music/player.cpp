@@ -1,10 +1,14 @@
 #include "../include/music/player.h"
 #include "../include/output/errors.h"
+#include <SDL_audio.h>
 #include <mutex>
 #include <thread>
+#include <algorithm>
 
 
 player::player(player& other) noexcept {
+    std::lock_guard lock{other.mutex};
+
     this->device = std::move(other.device);
 
     this->buffer = std::move(other.buffer);
@@ -17,6 +21,7 @@ player::player(player& other) noexcept {
     this->t = std::move(other.t);
     this->thread_error = other.thread_error;
     this->song_name = other.song_name;
+    this->volume = other.volume;
 
     other.thread_error = error();
     other.song_name.clear();
@@ -26,7 +31,8 @@ player::player(player& other) noexcept {
 player::player(std::unique_ptr<SDL_AudioDeviceID> device)
 :   device(std::move(device))
 ,   pause_status(0)
-,   running(true) {}
+,   running(true)
+,   volume(SDL_MIX_MAXVOLUME) {}
 
 player::~player(void) {
     if(t.joinable())
@@ -35,6 +41,11 @@ player::~player(void) {
 
 player& player::operator=(player&& other) {
     if(this != &other) {
+        stop();
+
+        std::lock_guard lock{mutex},
+                        lock2{other.mutex};
+
         this->buffer = other.buffer;
         this->device = std::move(other.device);
         this->pause_status = other.pause_status;
@@ -42,6 +53,7 @@ player& player::operator=(player&& other) {
         this->t = std::move(other.t);
         this->thread_error = other.thread_error;
         this->song_name = other.song_name;
+        this->volume = other.volume;
 
         other.buffer.clear();
         other.buffer.shrink_to_fit();
@@ -157,4 +169,31 @@ std::optional<error> player::get_error(void) const {
      return thread_error;   
 
     return std::nullopt;
+}
+
+void SDLCALL player::audio_callback(void* ud, Uint8* stream, int len) {
+    player* player_ptr{static_cast<player*>(ud)};
+    player_ptr->handle_audio_callback(stream, len);
+}
+
+void player::handle_audio_callback(Uint8* stream, int len) {
+    SDL_memset(stream, 0, len);
+
+    std::lock_guard lock{mutex};
+
+    if(pause_status == 1 || buffer.empty())
+        return;
+
+    std::size_t bytes_to_copy{std::min(static_cast<std::size_t>(len), buffer.size())};
+
+
+    SDL_MixAudioFormat(stream, reinterpret_cast<Uint8*>(buffer.data()), AUDIO_S16SYS, bytes_to_copy, volume);
+
+    buffer.erase(buffer.begin(), buffer.begin() + bytes_to_copy);
+}
+
+void player::set_volume(const int volume_percentage) {
+    std::lock_guard lock{mutex};
+
+    volume = (std::clamp(volume_percentage, 0, 100) * SDL_MIX_MAXVOLUME) / 100;
 }

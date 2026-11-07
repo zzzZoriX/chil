@@ -155,6 +155,20 @@ void input_core::input_thread(void) {
                 break;
 
             case VOLUME:
+                if(m_core && m_core->player_) {
+                    int percentage;
+
+                    std::cout << "Type volume percentage which you want to set\n" << prompt;
+                    std::cin >> percentage;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+                    m_core->player_->set_volume(percentage);
+
+                    chil::nice(chil(std::format("Volume set to {}%\n" , percentage)));
+                }
+                else {
+                    error::panic(error("Music core or music player is not initialized", error::code::auderr));
+                }
                 break;
 
             case LOOK:
