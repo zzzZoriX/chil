@@ -19,15 +19,15 @@
 #define prompt "> "
 #define act_max 10
 #define CHIL_INFO \
-    "\tCHIL\n" \
-    "\t  by zorix\n" \
+    "\t\t\t\t\tCHIL\n" \
+    "\tby zorix\n" \
     "\tVersion: 1.0.0\n" \
     "\n" \
     "\tA simple application for creating playlists and enjoying your music collection.\n" \
     "\n" \
     "\tCOMMANDS:\n" \
     "\n" \
-    "\t[0] exit     - Exit the application.\n" \
+    "\t[0] quit     - Exit the application.\n" \
     "\t[1] load     - Load a playlist from the playlists directory (default: chil_playlists).\n" \
     "\t[2] play     - Start playing the loaded playlist.\n" \
     "\t[3] pause    - Pause or resume the current track.\n" \

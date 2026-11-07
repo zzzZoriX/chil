@@ -21,7 +21,7 @@ void input_core::start(void) {
 }
 
 void input_core::input_thread(void) {
-    std::cout << "\tCHIL CLI\nfor help enter '7'\n" << std::endl;
+    std::cout << "\tCHIL CLI\nfor help type 'info' or '10'\n" << std::endl;
 
     bool paused = false;
 
@@ -31,13 +31,15 @@ void input_core::input_thread(void) {
         std::cout << prompt;
         std::getline(std::cin, act); 
 
-        if(act < 0 || act > act_max) {
+        auto number{get_number(act)};
+
+        if(number < 0 || number > act_max) {
             warn::fear(warn("Unknown command. Type 10 / info for more information about CHIL\n"));
 
             continue;
         }
 
-        switch(act) {
+        switch(number) {
             case QUIT: // quit
                 std::cout << "quiting..." << std::endl;
                 return;
@@ -159,7 +161,7 @@ void input_core::input_thread(void) {
                 break;
 
             case INFO: // info
-                std::cout << "info...\n" << std::endl;
+                std::cout << CHIL_INFO << std::endl;
                 break;
         }
     }
