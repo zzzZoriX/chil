@@ -189,9 +189,9 @@ int input_core::get_number(const std::string& act) const {
     if(act == "play" || act == "2") return PLAY;
     if(act == "pause" || act == "3") return PAUSE;
     if(act == "stop" || act == "4") return STOP;
-    if(act == "add" || act == "5") return ADD;
-    if(act == "remove" || act == "6") return REMOVE;
-    if(act == "volume" || act == "7") return VOLUME;
+    if(act == "volume" || act == "5") return VOLUME;
+    if(act == "add" || act == "6") return ADD;
+    if(act == "remove" || act == "7") return REMOVE;
     if(act == "look" || act == "8") return LOOK;
     if(act == "config" || act == "9") return CONFIG;
     if(act == "info" || act == "10") return INFO;

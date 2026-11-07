@@ -13,7 +13,8 @@ class music_core {
 public:
     friend class input_core;
 
-    music_core(music_core&);
+    music_core(music_core&) = delete;
+    music_core& operator=(const music_core&) = delete;
     music_core(void);
     ~music_core(void);   
 

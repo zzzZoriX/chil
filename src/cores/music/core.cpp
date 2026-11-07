@@ -2,11 +2,6 @@
 #include <memory>
 
 
-music_core::music_core(music_core& other) {
-    this->device = std::move(other.device);
-    this->playlist_ = std::move(other.playlist_);
-}
-
 music_core::music_core(void) {
     player_ = std::make_shared<player>(std::make_unique<SDL_AudioDeviceID>());
     playlist_ = std::make_unique<playlist>(player_);

@@ -18,8 +18,8 @@ int main() {
 
         chil::nice(chil("SDL initialized successfully\n"));
 
-        music_core m_core;
-        input_core i_core{std::make_unique<music_core>(m_core)};
+        auto m_core{std::make_unique<music_core>()};
+        input_core i_core{std::move(m_core)};
 
         i_core.start();
         
