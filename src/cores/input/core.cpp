@@ -59,6 +59,7 @@ void input_core::input_thread(void) {
 
                         std::cout << prompt;
                         std::cin >> selected;
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
                         if(selected < 0 || selected > playlists.size()) {
                             warn::fear(warn("Unknown playlist"));
@@ -103,6 +104,7 @@ void input_core::input_thread(void) {
 
                     std::cout << prompt;
                     std::cin >> selected;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
                     if(selected < 0 || selected >> songs.size())
                        throw error("Index out of range\n", error::code::argerr);
@@ -135,6 +137,7 @@ void input_core::input_thread(void) {
 
                     std::cout << prompt;
                     std::cin >> selected;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
                     if(selected < 0 || selected >> songs.size())
                        throw error("Index out of range\n", error::code::argerr);
