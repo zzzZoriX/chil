@@ -23,22 +23,26 @@ void input_core::start(void) {
 void input_core::input_thread(void) {
     std::cout << "\tCHIL CLI\nfor help enter '7'\n" << std::endl;
 
-    int act;
     bool paused = false;
 
     while(true) {
-        std::cout << prompt;
-        std::cin >> act;
+        std::string act;
 
-        if(act < 0) act = -act;
-        if(act > act_max) act %= act_max;
+        std::cout << prompt;
+        std::getline(std::cin, act); 
+
+        if(act < 0 || act > act_max) {
+            warn::fear(warn("Unknown command. Type 10 / info for more information about CHIL\n"));
+
+            continue;
+        }
 
         switch(act) {
-            case 0: // quit
+            case QUIT: // quit
                 std::cout << "quiting..." << std::endl;
                 return;
 
-            case 1: { // load
+            case LOAD: { // load
                         int selected;
                         auto playlists{playlist::get_playlists()};
 
@@ -64,24 +68,24 @@ void input_core::input_thread(void) {
                     }
                 break;
 
-            case 2: // play
+            case PLAY: // play
                 m_core->playlist_->play(play_settings());
                 chil::nice(chil(std::format("Playlist {} starts playing\n", m_core->playlist_->name)));
                 break;
 
-            case 3: // pause
+            case PAUSE: // pause
                 m_core->playlist_->pause();
                 paused = !paused;
 
                 chil::nice(chil(std::format("{}\n", (paused ? "Paused" : "Unpaused"))));
                 break;
 
-            case 4: // stop
+            case STOP: // stop
                 m_core->playlist_->stop();
                 chil::nice(chil("Playlist stoped\n"));
                 break;
 
-            case 5: // add 
+            case ADD: // add 
                 try {
                     int selected;
                     const auto songs{get_files(get_home_path() / songs_to_add_dir_name)};
@@ -113,7 +117,7 @@ void input_core::input_thread(void) {
                 }
                 break;
 
-            case 6: // remove
+            case REMOVE: // remove
                 try {
                     int selected;
                     const auto songs{get_files(get_home_path() / playlists_dir_name / m_core->playlist_->name)};
@@ -145,9 +149,34 @@ void input_core::input_thread(void) {
                 }
                 break;
 
-            case 7: // info
+            case VOLUME:
+                break;
+
+            case LOOK:
+                break;
+
+            case CONFIG:
+                break;
+
+            case INFO: // info
                 std::cout << "info...\n" << std::endl;
                 break;
         }
     }
+}
+
+int input_core::get_number(const std::string& act) const {
+    if(act == "load" || act == "1") return LOAD;
+    if(act == "play" || act == "2") return PLAY;
+    if(act == "pause" || act == "3") return PAUSE;
+    if(act == "stop" || act == "4") return STOP;
+    if(act == "add" || act == "5") return ADD;
+    if(act == "remove" || act == "6") return REMOVE;
+    if(act == "volume" || act == "7") return VOLUME;
+    if(act == "look" || act == "8") return LOOK;
+    if(act == "config" || act == "9") return CONFIG;
+    if(act == "info" || act == "10") return INFO;
+    if(act == "quit" || act == "0") return QUIT;
+
+    return act_max + 1;
 }

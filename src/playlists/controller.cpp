@@ -4,7 +4,6 @@
 #include <memory>
 #include "../include/output/errors.h"
 #include "../include/files/chil-files.h"
-#include "../include/files/parser.h"
 
 using namespace std::filesystem;
 
@@ -50,7 +49,7 @@ void playlist::load(const std::string& name) {
             path song_path{catalog_path /  entry};
             auto title{entry.path().filename().string()};
 
-            list.emplace_back(music::parse(title), song_path);
+            list.emplace_back(title, song_path);
         }
     }
 }
@@ -61,9 +60,7 @@ void playlist::add(const std::string& name) {
     if(!source.has_value())
         throw error("Song is unavailable now.", error::code::argerr);
 
-    music song{parse(source.value())};
-
-    const auto dest{get_home_path() / playlists_dir_name / this->name / (convert_to_name(song.info) + source->extension().string())};
+    const auto dest{get_home_path() / playlists_dir_name / this->name / source->filename().string()};
 
     try {
         std::filesystem::rename(source.value(), dest);
@@ -146,7 +143,7 @@ void playlist::playlist_thread(void) {
             std::lock_guard lock{mutex};
             if(!playing.load()) break;
         
-            player->load(song->song_path.c_str(), song->info.name);
+            player->load(song->song_path.c_str(), song->name);
             player->play();
         }
 

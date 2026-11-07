@@ -6,7 +6,6 @@
 #include "../music/player.h"
 #include <vector>
 #include <SDL2/SDL.h>
-#include <filesystem>
 #include <mutex>
 #include <thread>
 #include <atomic>
