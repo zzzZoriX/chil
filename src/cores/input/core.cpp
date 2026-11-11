@@ -171,7 +171,14 @@ void input_core::input_thread(void) {
                 }
                 break;
 
-            case LOOK:
+            case LOOK: {
+                    const auto list{m_core->playlist_->get_playlist()};
+                    std::cout << "|: " << m_core->playlist_->name << "\n";
+
+                    for(const auto& m: list)
+                        std::cout << "| " << m.name << "\t? " << m.song_path << "\n";
+                    std::cout << "--\n\n";
+                }
                 break;
 
             case CONFIG:

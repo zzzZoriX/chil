@@ -43,6 +43,7 @@ public:
     void stop(void);
     void pause(void);
     static std::vector<std::string> get_playlists(void);
+    std::vector<music> get_playlist(void) const noexcept;
 
 private:
     void playlist_thread(void);

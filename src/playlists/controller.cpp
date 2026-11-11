@@ -38,6 +38,11 @@ playlist& playlist::operator=(playlist&& other) {
 
 
 void playlist::load(const std::string& name) {
+    if(!list.empty()) {
+        list.clear();
+        list.shrink_to_fit();
+    }
+
     path catalog_path{get_home_path() / playlists_dir_name / name};
     this->name = name;
 
@@ -190,4 +195,8 @@ std::vector<std::string> playlist::get_playlists(void) {
             playlists.push_back(entry.path().filename().string());
 
     return playlists;
+}
+
+std::vector<music> playlist::get_playlist(void) const noexcept {
+    return list;
 }
