@@ -2,3 +2,5 @@
 build/
 debug/
 vcpkg_installed/
+build-win/
+external/

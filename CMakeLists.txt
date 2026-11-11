@@ -5,12 +5,29 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(chil VERSION 1.0.0)
 
-find_package(SDL2 REQUIRED)
+set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_STATIC ON CACHE BOOL "" FORCE)
+add_subdirectory(external/SDL2)
 
-add_executable(chil src/main.cpp src/playlists/controller.cpp src/music/player.cpp src/cores/music/core.cpp src/cores/input/core.cpp src/files/chil-files.cpp)
+add_executable(chil
+    src/main.cpp
+    src/playlists/controller.cpp
+    src/music/player.cpp
+    src/cores/music/core.cpp
+    src/cores/input/core.cpp
+    src/files/chil-files.cpp
+)
 
-target_include_directories(chil PRIVATE ${SDL2_INCLUDE_DIRS})
+target_include_directories(chil PRIVATE 
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/external/SDL2/include
+)
 
-target_link_libraries(chil PRIVATE ${SDL2_LIBRARIES})
+if(WIN32)
+    target_link_options(chil PRIVATE -static -static-libgcc -static-libstdc++)
+    target_link_libraries(chil PRIVATE SDL2::SDL2main SDL2::SDL2-static)
+else()
+    target_link_options(chil PRIVATE -static-libgcc -static-libstdc++)
+    target_link_libraries(chil PRIVATE SDL2::SDL2-static)
+endif()
 
-target_include_directories(chil PRIVATE ${CMAKE_SOURCE_DIR}/include)
