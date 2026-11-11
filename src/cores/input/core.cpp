@@ -61,8 +61,8 @@ void input_core::input_thread(void) {
                         std::cin >> selected;
                         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-                        if(selected < 0 || selected > playlists.size()) {
-                            warn::fear(warn("Unknown playlist"));
+                        if(selected < 0 || selected > playlists.size() - 1) {
+                            warn::fear(warn("Unknown playlist\n"));
                             break;
                         }
 

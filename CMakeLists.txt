@@ -12,3 +12,5 @@ add_executable(chil src/main.cpp src/playlists/controller.cpp src/music/player.c
 target_include_directories(chil PRIVATE ${SDL2_INCLUDE_DIRS})
 
 target_link_libraries(chil PRIVATE ${SDL2_LIBRARIES})
+
+target_include_directories(chil PRIVATE ${CMAKE_SOURCE_DIR}/include)
