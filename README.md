@@ -59,14 +59,14 @@ All commands are entered directly into the CHIL terminal.
 |---|---|---|
 | `exit` | `0` | Exit the application. |
 | `load` | `1` | Load a playlist from `chil_playlists`. |
-| `play` | `2` | Start playing the loaded playlist. |
-| `pause` | `3` | Pause or resume the current track. |
-| `stop` | `4` | Stop playlist playback. |
-| `volume` | `5` | Adjust playback volume. |
-| `add` | `6` | Move a track from `chil_to_add` to the loaded playlist. |
-| `remove` | `7` | Move a track from the loaded playlist back to `chil_to_add`. |
-| `look` | `8` | Display tracks from the loaded playlist. |
-| `config` | `9` | Open configuration settings. |
+| `make` | `2` | Make a playlist in `chil_playlists`. |
+| `play` | `3` | Start playing the loaded playlist. |
+| `pause` | `4` | Pause or resume the current track. |
+| `stop` | `5` | Stop playlist playback. |
+| `volume` | `6` | Adjust playback volume. |
+| `add` | `7` | Move a track from `chil_to_add` to the loaded playlist. |
+| `remove` | `8` | Move a track from the loaded playlist back to `chil_to_add`. |
+| `look` | `9` | Display tracks from the loaded playlist. |
 | `info` | `10` | Display application information and available commands. |
 
 ## Important Notes
