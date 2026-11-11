@@ -6,14 +6,14 @@
 
 #define QUIT 0
 #define LOAD 1
-#define PLAY 2
-#define PAUSE 3
-#define STOP 4
-#define ADD 5
-#define REMOVE 6
-#define VOLUME 7
-#define LOOK 8
-#define CONFIG 9
+#define MAKE 2
+#define PLAY 3
+#define PAUSE 4
+#define STOP 5
+#define ADD 6
+#define REMOVE 7
+#define VOLUME 8
+#define LOOK 9
 #define INFO 10
 
 #define prompt "> "
@@ -28,15 +28,15 @@
     "\tCOMMANDS:\n" \
     "\n" \
     "\t[0] quit     - Exit the application.\n" \
-    "\t[1] load     - Load a playlist from the playlists directory (default: chil_playlists).\n" \
-    "\t[2] play     - Start playing the loaded playlist.\n" \
-    "\t[3] pause    - Pause or resume the current track.\n" \
-    "\t[4] stop     - Stop playlist playback.\n" \
-    "\t[5] volume   - Adjust the playback volume.\n" \
-    "\t[6] add      - Add a track from the incoming directory (default: chil_to_add) to the loaded playlist directory. Reload the playlist using 'load' to make the track available.\n" \
-    "\t[7] remove   - Move a track from the loaded playlist directory back to the incoming directory.\n" \
-    "\t[8] look     - Display tracks from the loaded playlist (only tracks present when the playlist was loaded).\n" \
-    "\t[9] config   - Open configuration settings.\n" \
+    "\t[1] load     - Load a playlist from the playlists directory).\n" \
+    "\t[2] make     - Make a playlist in the playlists directory"\
+    "\t[3] play     - Start playing the loaded playlist.\n" \
+    "\t[4] pause    - Pause or resume the current track.\n" \
+    "\t[5] stop     - Stop playlist playback.\n" \
+    "\t[6] volume   - Adjust the playback volume.\n" \
+    "\t[7] add      - Add a track from the incoming directory to the loaded playlist directory. Reload the playlist using 'load' to make the track available.\n" \
+    "\t[8] remove   - Move a track from the loaded playlist directory back to the incoming directory.\n" \
+    "\t[9] look     - Display tracks from the loaded playlist (only tracks present when the playlist was loaded).\n" \
     "\t[10] info    - Display this information.\n"
 
 

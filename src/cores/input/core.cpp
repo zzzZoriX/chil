@@ -71,6 +71,20 @@ void input_core::input_thread(void) {
                     }
                 break;
 
+            case MAKE: {
+                           std::string name;
+
+                           std::cout << "Enter the playlist name:\n";
+                           std::cout << prompt;
+                           std::getline(std::cin, name);
+                           std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+                           m_core->playlist_->make(name);
+
+                           chil::nice(chil(std::format("Playlist {} have been created successfully", name)));
+                       }
+                break;
+
             case PLAY: // play
                 m_core->playlist_->play(play_settings());
                 chil::nice(chil(std::format("Playlist {} starts playing\n", m_core->playlist_->name)));
@@ -173,15 +187,12 @@ void input_core::input_thread(void) {
 
             case LOOK: {
                     const auto list{m_core->playlist_->get_playlist()};
-                    std::cout << "|: " << m_core->playlist_->name << "\n";
+                    std::cout << "|--\n|: playlist: " << m_core->playlist_->name << "\n|--\n";
 
                     for(const auto& m: list)
-                        std::cout << "| " << m.name << "\t? " << m.song_path << "\n";
-                    std::cout << "--\n\n";
+                        std::cout << "| song: " << m.name << "\tpath: " << m.song_path << "\n";
+                    std::cout << "|--\n\n";
                 }
-                break;
-
-            case CONFIG:
                 break;
 
             case INFO: // info
@@ -193,14 +204,14 @@ void input_core::input_thread(void) {
 
 int input_core::get_number(const std::string& act) const {
     if(act == "load" || act == "1") return LOAD;
-    if(act == "play" || act == "2") return PLAY;
-    if(act == "pause" || act == "3") return PAUSE;
-    if(act == "stop" || act == "4") return STOP;
-    if(act == "volume" || act == "5") return VOLUME;
-    if(act == "add" || act == "6") return ADD;
-    if(act == "remove" || act == "7") return REMOVE;
-    if(act == "look" || act == "8") return LOOK;
-    if(act == "config" || act == "9") return CONFIG;
+    if(act == "make" || act == "2") return MAKE;
+    if(act == "play" || act == "3") return PLAY;
+    if(act == "pause" || act == "4") return PAUSE;
+    if(act == "stop" || act == "5") return STOP;
+    if(act == "volume" || act == "6") return VOLUME;
+    if(act == "add" || act == "7") return ADD;
+    if(act == "remove" || act == "8") return REMOVE;
+    if(act == "look" || act == "9") return LOOK;
     if(act == "info" || act == "10") return INFO;
     if(act == "quit" || act == "0") return QUIT;
 
