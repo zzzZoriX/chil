@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.15)
 
+project(chil VERSION 1.0.0 LANGUAGES C CXX)
+
+# C++ standard
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-project(chil VERSION 1.0.0)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
+set(SDL_TEST OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(external/SDL2)
 
 add_executable(chil
@@ -18,16 +22,32 @@ add_executable(chil
     src/files/chil-files.cpp
 )
 
-target_include_directories(chil PRIVATE 
+target_include_directories(chil PRIVATE
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/external/SDL2/include
+)
+
+target_compile_definitions(chil PRIVATE
+    SDL_MAIN_HANDLED
+)
+
+target_link_libraries(chil PRIVATE
+    SDL2::SDL2-static
 )
 
 if(WIN32)
-    target_link_options(chil PRIVATE -static -static-libgcc -static-libstdc++)
-    target_link_libraries(chil PRIVATE SDL2::SDL2main SDL2::SDL2-static)
-else()
-    target_link_options(chil PRIVATE -static-libgcc -static-libstdc++)
-    target_link_libraries(chil PRIVATE SDL2::SDL2-static)
+    target_link_options(chil PRIVATE
+        -mconsole
+        -static
+        -static-libgcc
+        -static-libstdc++
+    )
+elseif(UNIX)
+    target_link_options(chil PRIVATE
+        -static-libgcc
+        -static-libstdc++
+    )
 endif()
 
+set_target_properties(chil PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
