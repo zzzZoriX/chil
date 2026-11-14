@@ -148,7 +148,7 @@ void playlist::playlist_thread(void) {
             std::lock_guard lock{mutex};
             if(!playing.load()) break;
         
-            player->load(song->song_path.c_str(), song->name);
+            player->load(song->song_path.string(), song->name);
             player->play();
         }
 

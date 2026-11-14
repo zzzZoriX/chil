@@ -10,6 +10,8 @@
 int main() {
     check();
 
+    SDL_SetMainReady();
+
     SDL_AudioDeviceID device; 
 
     try {

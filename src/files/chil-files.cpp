@@ -12,7 +12,7 @@ path get_home_path(void) {
 #if defined(_WIN32)
     const char* user_profile{std::getenv("USERPROFILE")};
     if(user_profile) {
-        return fs::path(user_profile);
+        return path(user_profile);
     }
     const char* home_drive{std::getenv("HOMEDRIVE")};
     const char* home_path{std::getenv("HOMEPATH")};
