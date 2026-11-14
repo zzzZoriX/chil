@@ -57,7 +57,7 @@ All commands are entered directly into the CHIL terminal.
 
 | Command | Alias | Description |
 |---|---|---|
-| `exit` | `0` | Exit the application. |
+| `quit` | `0` | Exit the application. |
 | `load` | `1` | Load a playlist from `chil_playlists`. |
 | `make` | `2` | Make a playlist in `chil_playlists`. |
 | `play` | `3` | Start playing the loaded playlist. |
